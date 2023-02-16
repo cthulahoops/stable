@@ -98,7 +98,11 @@ def parse_args():
         default=500,
         help="Save learned_embeds.bin every X updates steps.",
     )
-    parser.add_argument("--only_save_embeds", action="store_true", help="Save only the embeddings for the new concept.")
+    parser.add_argument(
+        "--only_save_embeds",
+        action="store_true",
+        help="Save only the embeddings for the new concept.",
+    )
     parser.add_argument(
         "--pretrained_model_name_or_path",
         default="runwayml/stable-diffusion-v1-5",
@@ -125,14 +129,29 @@ def parse_args():
         required=True,
         help="A token to use as a placeholder for the concept.",
     )
-    parser.add_argument( "--initializer_token", type=str, required=True, help="A token to use as initializer word.",)
+    parser.add_argument(
+        "--initializer_token",
+        type=str,
+        required=True,
+        help="A token to use as initializer word.",
+    )
     # Choose between object and style:
     parser.add_argument(
-        "--learnable_property", type=str, default="object", choices=["object", "style"], help="Type of concept to train. Effects the default set of phrases used."
+        "--learnable_property",
+        type=str,
+        default="object",
+        choices=["object", "style"],
+        help="Type of concept to train. Effects the default set of phrases used.",
     )
-    parser.add_argument("--repeats", type=int, default=100, help="How many times to repeat the training data.")
     parser.add_argument(
-        "--output_dir", '-o',
+        "--repeats",
+        type=int,
+        default=100,
+        help="How many times to repeat the training data.",
+    )
+    parser.add_argument(
+        "--output_dir",
+        "-o",
         type=str,
         default="text-inversion-model",
         help="The output directory where the model predictions and checkpoints will be written.",
@@ -152,14 +171,56 @@ def parse_args():
         action="store_true",
         help="Whether to center crop images before resizing to resolution.",
     )
-    parser.add_argument("--train_batch_size", type=int, default=1, help="Batch size (per device) for the training dataloader.")
+    parser.add_argument(
+        "--train_batch_size",
+        type=int,
+        default=1,
+        help="Batch size (per device) for the training dataloader.",
+    )
     parser.add_argument("--num_train_epochs", type=int, default=100)
-    parser.add_argument("--max_train_steps", '-s', type=int, default=5000, help="Total number of training steps to perform.  If provided, overrides num_train_epochs.")
-    parser.add_argument("--gradient_accumulation_steps", type=int, default=4, help="Number of updates steps to accumulate before performing a backward/update pass.")
-    parser.add_argument("--gradient_checkpointing", action="store_true", help="Whether or not to use gradient checkpointing to save memory at the expense of slower backward pass.")
-    parser.add_argument("--learning_rate", type=float, default=5.0e-4, help="Initial learning rate (after the potential warmup period) to use.")
-    parser.add_argument("--scale_lr", action="store_true", default=True, help="Scale the learning rate by the number of GPUs, gradient accumulation steps, and batch size.")
-    parser.add_argument("--lr_scheduler", type=str, default="constant", choices=["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"], help=(
+    parser.add_argument(
+        "--max_train_steps",
+        "-s",
+        type=int,
+        default=5000,
+        help="Total number of training steps to perform.  If provided, overrides num_train_epochs.",
+    )
+    parser.add_argument(
+        "--gradient_accumulation_steps",
+        type=int,
+        default=4,
+        help="Number of updates steps to accumulate before performing a backward/update pass.",
+    )
+    parser.add_argument(
+        "--gradient_checkpointing",
+        action="store_true",
+        help="Whether or not to use gradient checkpointing to save memory at the expense of slower backward pass.",
+    )
+    parser.add_argument(
+        "--learning_rate",
+        type=float,
+        default=5.0e-4,
+        help="Initial learning rate (after the potential warmup period) to use.",
+    )
+    parser.add_argument(
+        "--scale_lr",
+        action="store_true",
+        default=True,
+        help="Scale the learning rate by the number of GPUs, gradient accumulation steps, and batch size.",
+    )
+    parser.add_argument(
+        "--lr_scheduler",
+        type=str,
+        default="constant",
+        choices=[
+            "linear",
+            "cosine",
+            "cosine_with_restarts",
+            "polynomial",
+            "constant",
+            "constant_with_warmup",
+        ],
+        help=(
             'The scheduler type to use. Choose between ["linear", "cosine", "cosine_with_restarts", "polynomial",'
             ' "constant", "constant_with_warmup"]'
         ),
@@ -302,7 +363,11 @@ def parse_args():
             ' `--checkpointing_steps`, or `"latest"` to automatically select the last available checkpoint.'
         ),
     )
-    parser.add_argument("--enable_xformers_memory_efficient_attention", action="store_true", help="Whether or not to use xformers.")
+    parser.add_argument(
+        "--enable_xformers_memory_efficient_attention",
+        action="store_true",
+        help="Whether or not to use xformers.",
+    )
 
     args = parser.parse_args()
     env_local_rank = int(os.environ.get("LOCAL_RANK", -1))
@@ -437,11 +502,8 @@ class TextualInversionDataset(Dataset):
         img = np.array(image).astype(np.uint8)
 
         if self.center_crop:
-            crop = min(img.shape[0], img.shape[1])
-            (h, w,) = (
-                img.shape[0],
-                img.shape[1],
-            )
+            (h, w) = (img.shape[0], img.shape[1])
+            crop = min(h, w)
             img = img[
                 (h - crop) // 2 : (h + crop) // 2, (w - crop) // 2 : (w + crop) // 2
             ]
